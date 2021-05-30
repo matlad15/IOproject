@@ -8,13 +8,9 @@ from django_tables2.views import SingleTableMixin
 from .models import *
 import re
 import django_filters
-from django.shortcuts import redirect, render
 
 import pandas as pd
 
-
-def index(request):
-    return render(request, 'searchEngine/index.html', {})
 
 def get_dose(tab):
     cell = tab.split(" ")
@@ -242,22 +238,31 @@ class RowFilter(django_filters.FilterSet):
     substance__name = django_filters.CharFilter(lookup_expr='icontains')
     refund__name = django_filters.CharFilter(lookup_expr='icontains')
 
-    surcharge__value = django_filters.NumberFilter()
     surcharge__value__gt = django_filters.NumberFilter(field_name='surcharge__value', lookup_expr='gt')
     surcharge__value__lt = django_filters.NumberFilter(field_name='surcharge__value', lookup_expr='lt')
 
-    ean__value = django_filters.NumberFilter()
     ean__value__gt = django_filters.NumberFilter(field_name='ean__value', lookup_expr='gt')
     ean__value__lt = django_filters.NumberFilter(field_name='ean__value', lookup_expr='lt')
 
+    dose__value__gt = django_filters.NumberFilter(field_name='dose__value', lookup_expr='gt')
+    dose__value__lt = django_filters.NumberFilter(field_name='dose__value', lookup_expr='lt')
+    dose__unit = django_filters.CharFilter(lookup_expr='icontains')
+
+    content__value = django_filters.CharFilter(lookup_expr='icontains')
+    content__unit = django_filters.CharFilter(lookup_expr='icontains')
+
+
     class Meta:
         model = RowA
-        fields = ['name__name', 'form__name', 'substance__name', 'refund__name', 'surcharge__value', 'ean__value']
+        fields = ['name__name', 'form__name', 'substance__name', 'refund__name', 'ean__value__gt', 'ean__value__lt',
+                  'surcharge__value__gt', 'surcharge__value__lt', 'dose__value__gt', 'dose__value__lt', 'dose__unit',
+                  'content__value', 'content__unit']
 
 
 class FilteredRowListView(SingleTableMixin, FilterView):
     table_class = RowTable
     model = RowA
+    paginate_by = 50
     template_name = "searchEngine/index.html"
 
     filterset_class = RowFilter

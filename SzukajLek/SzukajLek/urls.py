@@ -15,8 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from searchEngine.views import FilteredRowListView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('searchEngine.urls')),
+    path('', FilteredRowListView.as_view()),
 ]
