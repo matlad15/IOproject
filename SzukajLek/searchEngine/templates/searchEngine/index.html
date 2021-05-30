@@ -1,0 +1,38 @@
+{% load static %}
+<!-- {% load render_table from django_tables2 %}
+{% load bootstrap3 %} -->
+<!DOCTYPE HTML>
+
+<HTML LANG="en">
+
+    <HEAD>
+        <TITLE>SzukajLeku</TITLE>
+        <LINK REL="stylesheet" HREF="{% static 'css/index.css' %}">
+    </HEAD>
+
+    <BODY>
+        <DIV CLASS="background">
+            <DIV CLASS="name">SzukajLeku</DIV>
+            <form>
+                <input type="text" id="search" name="search" placeholder="Szukaj leku...">
+                <input type="submit" value="Wyszukaj">
+            </form>
+            <DIV CLASS="results">
+                <!-- <form action="" method="get" class="form form-inline">
+                    {% bootstrap_form filter.form layout='inline' %}
+                    {% bootstrap_button 'filter' %}
+                </form>
+                {% render_table table %} -->
+            </DIV>
+            <a href CLASS="next-page">
+                Nastepna strona
+            </a>
+            <a href CLASS="previous-page" value="Poprzednia strona">
+                Poprzednia strona
+            </a>
+        </DIV>
+    </BODY>
+
+
+
+</HTML>
