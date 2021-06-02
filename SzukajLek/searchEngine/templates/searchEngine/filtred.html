@@ -15,11 +15,12 @@
         <DIV CLASS="background">
             <DIV CLASS="name">SzukajLeku</DIV>
             <DIV CLASS="results">
-                <form action="filtred/" method="get" class="form form-inline">
+                <form action="" method="get" class="form form-inline">
                     {% bootstrap_form filter.form layout='inline' %}
                     {% bootstrap_button 'filter' %}
                     <a href="/">Clear</a>
                 </form>
+                {% render_table table %}
             </DIV>
             </a>
         </DIV>

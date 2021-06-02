@@ -6,11 +6,15 @@ import itertools
 from django_filters.views import FilterView
 from django_tables2.views import SingleTableMixin
 from .models import *
-import re
+from django.shortcuts import redirect, render
 import django_filters
+import re
 
 import pandas as pd
 
+# def index(request):
+#     parse_xlsx()
+#     return
 
 def get_dose(tab):
     cell = tab.split(" ")
@@ -163,9 +167,10 @@ def parse_xlsx():
 
 class RowTable(tables.Table):
     class Meta:
-        exclude = ['created_on']
+        exclude = ['created_on', 'id']
         model = RowA
         template_name = "django_tables2/bootstrap.html"
+        order_by = ['name']
 
     def order_name(self, queryset, is_descending):
         if not is_descending:
@@ -244,8 +249,8 @@ class RowFilter(django_filters.FilterSet):
     ean__value__gt = django_filters.NumberFilter(field_name='ean__value', lookup_expr='gt')
     ean__value__lt = django_filters.NumberFilter(field_name='ean__value', lookup_expr='lt')
 
-    dose__value__gt = django_filters.NumberFilter(field_name='dose__value', lookup_expr='gt')
-    dose__value__lt = django_filters.NumberFilter(field_name='dose__value', lookup_expr='lt')
+    # dose__value__gt = django_filters.NumberFilter(field_name='dose__value', lookup_expr='gt')
+    # dose__value__lt = django_filters.NumberFilter(field_name='dose__value', lookup_expr='lt')
     dose__unit = django_filters.CharFilter(lookup_expr='icontains')
 
     content__value = django_filters.CharFilter(lookup_expr='icontains')
@@ -254,15 +259,27 @@ class RowFilter(django_filters.FilterSet):
 
     class Meta:
         model = RowA
-        fields = ['name__name', 'form__name', 'substance__name', 'refund__name', 'ean__value__gt', 'ean__value__lt',
-                  'surcharge__value__gt', 'surcharge__value__lt', 'dose__value__gt', 'dose__value__lt', 'dose__unit',
-                  'content__value', 'content__unit']
+        fields = ['substance__name', 'name__name', 'form__name', 'refund__name', 'ean__value__gt', 'ean__value__lt',
+                  'surcharge__value__gt', 'surcharge__value__lt', 'dose__unit', 'content__value', 'content__unit']
+        # fields = ['substance__name', 'name__name', 'form__name', 'refund__name', 'ean__value__gt', 'ean__value__lt',
+        #           'surcharge__value__gt', 'surcharge__value__lt', 'dose__value__gt', 'dose__value__lt', 'dose__unit',
+        #           'content__value', 'content__unit']
 
 
 class FilteredRowListView(SingleTableMixin, FilterView):
     table_class = RowTable
     model = RowA
     paginate_by = 50
+    template_name = "searchEngine/filtred.html"
+
+    filterset_class = RowFilter
+
+class NotFilteredRowListView(SingleTableMixin, FilterView):
+    table_class = RowTable
+    model = RowA
+    paginate_by = 50
+
     template_name = "searchEngine/index.html"
 
     filterset_class = RowFilter
+
