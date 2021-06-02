@@ -251,7 +251,7 @@ class RowFilter(django_filters.FilterSet):
 
     # dose__value__gt = django_filters.NumberFilter(field_name='dose__value', lookup_expr='gt')
     # dose__value__lt = django_filters.NumberFilter(field_name='dose__value', lookup_expr='lt')
-    dose__unit = django_filters.CharFilter(lookup_expr='icontains')
+    dose__unit = django_filters.NumberFilter(lookup_expr='icontains')
 
     content__value = django_filters.CharFilter(lookup_expr='icontains')
     content__unit = django_filters.CharFilter(lookup_expr='icontains')
