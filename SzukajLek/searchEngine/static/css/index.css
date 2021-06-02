@@ -12,17 +12,6 @@
     --next-page-color: black;
 }
 
-/* * {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
-    height: 100%;
-} */
-
-/* BODY {
-    background-color: var(--backgroun-color);
-} */
-
 .background {
     /* background-color: var(--backgroun-color); */
     width: 100%;
@@ -36,7 +25,7 @@
     height: 10%;
     left: 15%;
     top: 1%;
-    font-family: "Times New Roman";
+    font-family:'Times New Roman', Times, serif;
     color: var(--name-color);
     font-size: 300%;
     justify-content: center;
@@ -47,33 +36,13 @@
     border-color: var(--name-border-color);
 }
 
-/* input[type=text] {
-    position: absolute;
-    width: 50%;
-    height: 5%;
-    top: 13%;
-    left: 3%;
-}
-
-input[type="submit"] {
-    position: absolute;
-    width: 10%;
-    height: 5%;
-    top: 13%;
-    left: 58%;
-    border-radius: 50%;
-    background-color: var(--submit-background-color);
-} */
-
 .results {
     position: absolute;
     background-color: var(--results-background-color);
     height: 100%;
     width: 100%;
     top: 20%;
-    /* left: 5%; */
-    /* overflow-x: scroll;
-    overflow-y: scroll; */
+    overflow-x: scroll;
 }
 
 .next-page {
