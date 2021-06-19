@@ -9,12 +9,14 @@ from .models import *
 from django.shortcuts import redirect, render
 import django_filters
 import re
+# from datetime import datetime
+import datetime
 
 import pandas as pd
 
-# def index(request):
-#     parse_xlsx()
-#     return
+def index(request):
+    parse_xlsx()
+    return
 
 def get_dose(tab):
     cell = tab.split(" ")
@@ -132,7 +134,7 @@ def get_surcharge(cell):
 
 
 def parse_xlsx():
-    file = pd.ExcelFile('leki.xlsx', engine='openpyxl')
+    file = pd.ExcelFile('1maj2021.xlsx', engine='openpyxl')
     data = file.parse('A1', skiprows=1, index_col=None,
                       usecols=['Nazwa  postać i dawka', 'Zawartość opakowania',
                                'Substancja czynna', 'Numer GTIN lub inny kod jednoznacznie identyfikujący produkt',
@@ -152,6 +154,7 @@ def parse_xlsx():
         tab = row['Substancja czynna']
         substance = get_active_substance(tab)
 
+        # tab = row['Kod EAN lub inny kod odpowiadający kodowi EAN']
         tab = row['Numer GTIN lub inny kod jednoznacznie identyfikujący produkt']
         ean = get_ean(tab)
 
@@ -161,8 +164,11 @@ def parse_xlsx():
         tab = row['Wysokość dopłaty świadczeniobiorcy']
         surcharge = get_surcharge(tab)
 
+        regulation = Regulation(date=datetime.datetime.fromisoformat('2021-05-01'))
+        regulation.save()
+
         new_row = RowA(name=name, form=form, dose=dose, substance=substance,
-                       content=content, ean=ean, refund=refund, surcharge=surcharge)
+                       content=content, ean=ean, refund=refund, surcharge=surcharge, regulation=regulation)
         new_row.save()
 
 class RowTable(tables.Table):
@@ -236,6 +242,14 @@ class RowTable(tables.Table):
 
         return queryset, True
 
+    def order_regulation(self, queryset, is_descending):
+        if not is_descending:
+            queryset = queryset.order_by('regulation__date')
+        else:
+            queryset = queryset.order_by('-regulation__date')
+
+        return queryset, True
+
 
 class RowFilter(django_filters.FilterSet):
     name__name = django_filters.CharFilter(lookup_expr='icontains')
@@ -253,6 +267,9 @@ class RowFilter(django_filters.FilterSet):
     # dose__value__lt = django_filters.NumberFilter(field_name='dose__value', lookup_expr='lt')
     dose__unit = django_filters.CharFilter(lookup_expr='icontains')
 
+    regulation__date = django_filters.DateFilter()
+    
+
     content__value = django_filters.CharFilter(lookup_expr='icontains')
     content__unit = django_filters.CharFilter(lookup_expr='icontains')
 
@@ -260,7 +277,7 @@ class RowFilter(django_filters.FilterSet):
     class Meta:
         model = RowA
         fields = ['substance__name', 'name__name', 'form__name', 'refund__name', 'ean__value', 'ean__value__gt', 'ean__value__lt',
-                  'surcharge__value__gt', 'surcharge__value__lt', 'dose__unit', 'content__value', 'content__unit']
+                  'surcharge__value__gt', 'surcharge__value__lt', 'dose__unit', 'content__value', 'content__unit', 'regulation__date']
         # fields = ['substance__name', 'name__name', 'form__name', 'refund__name', 'ean__value__gt', 'ean__value__lt',
         #           'surcharge__value__gt', 'surcharge__value__lt', 'dose__value__gt', 'dose__value__lt', 'dose__unit',
         #           'content__value', 'content__unit']

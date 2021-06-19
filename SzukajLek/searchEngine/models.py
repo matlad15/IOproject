@@ -66,6 +66,12 @@ class Surcharge(TimeStampedModel):
     def __str__(self):
         return str(self.value)
 
+class Regulation(TimeStampedModel):
+    date = models.DateField(auto_now=False, auto_now_add=False)
+
+    def __str__(self):
+        return str(self.date)
+
 
 # Nazwa leku, Postać leku, Dawka substancji czynnej w leku, Zawartość opakowania, Nazwa substancji czynnej,
 # Kod EAN, Zakres wskazań objętych przez refundację, Wysokość dopłaty świadczeniobiorcy (klienta).
@@ -78,3 +84,4 @@ class RowA(TimeStampedModel):
     ean = models.ForeignKey(EAN, on_delete=models.CASCADE)
     refund = models.ForeignKey(Refund, on_delete=models.CASCADE)
     surcharge = models.ForeignKey(Surcharge, on_delete=models.CASCADE)
+    regulation = models.ForeignKey(Regulation, on_delete=models.CASCADE)
