@@ -15,12 +15,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-from searchEngine.views import FilteredRowListView, NotFilteredRowListView, index
+from searchEngine.views import FilteredRowListView, NotFilteredRowListView, EanListView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('filtred/', FilteredRowListView.as_view()),
     path('', NotFilteredRowListView.as_view()),
-    #path('', index)
-    # path('', index),
+    path('ean/<int:ean_id>/', EanListView.as_view(),  name="ean")
 ]

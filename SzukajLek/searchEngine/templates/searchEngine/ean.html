@@ -1,0 +1,29 @@
+{% load render_table from django_tables2 %}
+{% load bootstrap3 %}
+{% load static %}
+<!DOCTYPE HTML>
+
+<HTML LANG="en">
+
+<HEAD>
+    <TITLE>SzukajLeku</TITLE>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" />
+    <LINK REL="stylesheet" HREF="{% static 'css/index.css' %}">
+</HEAD>
+
+<BODY>
+<DIV CLASS="background">
+    <a href="/">Back</a>
+    <DIV CLASS="name">SzukajLeku</DIV>
+    <DIV CLASS="results">
+        <form action="" method="get" class="form form-inline">
+            {% bootstrap_form filter.form layout='inline' %}
+            {% bootstrap_button 'submit' %}
+            <a href=".">Clear</a>
+        </form>
+        {% render_table table %}
+    </DIV>
+</DIV>
+</BODY>
+
+</HTML>

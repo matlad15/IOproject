@@ -9,7 +9,7 @@ from .models import *
 from django.shortcuts import redirect, render
 import django_filters
 import re
-# from datetime import datetime
+from django_tables2.utils import A
 import datetime
 
 import pandas as pd
@@ -154,7 +154,6 @@ def parse_xlsx():
         tab = row['Substancja czynna']
         substance = get_active_substance(tab)
 
-        # tab = row['Kod EAN lub inny kod odpowiadający kodowi EAN']
         tab = row['Numer GTIN lub inny kod jednoznacznie identyfikujący produkt']
         ean = get_ean(tab)
 
@@ -171,7 +170,10 @@ def parse_xlsx():
                        content=content, ean=ean, refund=refund, surcharge=surcharge, regulation=regulation)
         new_row.save()
 
+
 class RowTable(tables.Table):
+    ean = tables.LinkColumn('ean', args=[A('ean__value')])
+
     class Meta:
         exclude = ['created_on', 'id']
         model = RowA
@@ -263,24 +265,28 @@ class RowFilter(django_filters.FilterSet):
     ean__value__gt = django_filters.NumberFilter(field_name='ean__value', lookup_expr='gt')
     ean__value__lt = django_filters.NumberFilter(field_name='ean__value', lookup_expr='lt')
 
-    # dose__value__gt = django_filters.NumberFilter(field_name='dose__value', lookup_expr='gt')
-    # dose__value__lt = django_filters.NumberFilter(field_name='dose__value', lookup_expr='lt')
     dose__unit = django_filters.CharFilter(lookup_expr='icontains')
 
-    regulation__date = django_filters.DateFilter()
-    
+    DATE_CHOICES = (
+        ('2020-01-01', '2020-01-01'),
+        ('2020-03-01', '2020-03-01'),
+        ('2020-09-01', '2020-09-01'),
+        ('2020-11-01', '2020-11-01'),
+        ('2021-01-01', '2021-01-01'),
+        ('2021-03-01', '2021-03-01'),
+        ('2021-05-01', '2021-05-01')
+    )
+    regulation__date = django_filters.ChoiceFilter(choices=DATE_CHOICES)
 
     content__value = django_filters.CharFilter(lookup_expr='icontains')
     content__unit = django_filters.CharFilter(lookup_expr='icontains')
 
-
     class Meta:
         model = RowA
-        fields = ['substance__name', 'name__name', 'form__name', 'refund__name', 'ean__value', 'ean__value__gt', 'ean__value__lt',
-                  'surcharge__value__gt', 'surcharge__value__lt', 'dose__unit', 'content__value', 'content__unit', 'regulation__date']
-        # fields = ['substance__name', 'name__name', 'form__name', 'refund__name', 'ean__value__gt', 'ean__value__lt',
-        #           'surcharge__value__gt', 'surcharge__value__lt', 'dose__value__gt', 'dose__value__lt', 'dose__unit',
-        #           'content__value', 'content__unit']
+        fields = ['substance__name', 'name__name', 'form__name', 'refund__name', 'ean__value', 'ean__value__gt',
+                  'ean__value__lt',
+                  'surcharge__value__gt', 'surcharge__value__lt', 'dose__unit', 'content__value', 'content__unit',
+                  'regulation__date']
 
 
 class FilteredRowListView(SingleTableMixin, FilterView):
@@ -291,6 +297,7 @@ class FilteredRowListView(SingleTableMixin, FilterView):
 
     filterset_class = RowFilter
 
+
 class NotFilteredRowListView(SingleTableMixin, FilterView):
     table_class = RowTable
     model = RowA
@@ -300,3 +307,133 @@ class NotFilteredRowListView(SingleTableMixin, FilterView):
 
     filterset_class = RowFilter
 
+
+class EanTable(tables.Table):
+    class Meta:
+        exclude = ['created_on', 'id']
+        model = RowA
+        template_name = "django_tables2/bootstrap.html"
+        order_by = ['regulation']
+        paginate_by = 50
+        sequence = ('regulation', 'name', 'form', 'dose', 'substance', 'content', 'ean', 'refund', 'surcharge')
+
+    def order_name(self, queryset, is_descending):
+        if not is_descending:
+            queryset = queryset.order_by('name__name')
+        else:
+            queryset = queryset.order_by('-name__name')
+
+        return queryset, True
+
+    def order_form(self, queryset, is_descending):
+        if not is_descending:
+            queryset = queryset.order_by('form__name')
+        else:
+            queryset = queryset.order_by('-form__name')
+
+        return queryset, True
+
+    def order_dose(self, queryset, is_descending):
+        if not is_descending:
+            queryset = queryset.order_by('dose__unit', 'dose__value')
+        else:
+            queryset = queryset.order_by('-dose__unit', '-dose__value')
+
+        return queryset, True
+
+    def order_ean(self, queryset, is_descending):
+        if not is_descending:
+            queryset = queryset.order_by('ean__value')
+        else:
+            queryset = queryset.order_by('-ean__value')
+
+        return queryset, True
+
+    def order_substance(self, queryset, is_descending):
+        if not is_descending:
+            queryset = queryset.order_by('substance__name')
+        else:
+            queryset = queryset.order_by('-substance__name')
+
+        return queryset, True
+
+    def order_content(self, queryset, is_descending):
+        if not is_descending:
+            queryset = queryset.order_by('content__unit', 'content__value')
+        else:
+            queryset = queryset.order_by('-content__unit', '-content__value')
+
+        return queryset, True
+
+    def order_surcharge(self, queryset, is_descending):
+        if not is_descending:
+            queryset = queryset.order_by('surcharge__value')
+        else:
+            queryset = queryset.order_by('-surcharge__value')
+
+        return queryset, True
+
+    def order_refund(self, queryset, is_descending):
+        if not is_descending:
+            queryset = queryset.order_by('refund__name')
+        else:
+            queryset = queryset.order_by('-refund__name')
+
+        return queryset, True
+
+    def order_regulation(self, queryset, is_descending):
+        if not is_descending:
+            queryset = queryset.order_by('regulation__date')
+        else:
+            queryset = queryset.order_by('-regulation__date')
+
+        return queryset, True
+
+
+class EanFilter(django_filters.FilterSet):
+    name__name = django_filters.CharFilter(lookup_expr='icontains')
+    form__name = django_filters.CharFilter(lookup_expr='icontains')
+    substance__name = django_filters.CharFilter(lookup_expr='icontains')
+    refund__name = django_filters.CharFilter(lookup_expr='icontains')
+
+    surcharge__value__gt = django_filters.NumberFilter(field_name='surcharge__value', lookup_expr='gt')
+    surcharge__value__lt = django_filters.NumberFilter(field_name='surcharge__value', lookup_expr='lt')
+
+    ean__value__gt = django_filters.NumberFilter(field_name='ean__value', lookup_expr='gt')
+    ean__value__lt = django_filters.NumberFilter(field_name='ean__value', lookup_expr='lt')
+
+    dose__unit = django_filters.CharFilter(lookup_expr='icontains')
+
+    DATE_CHOICES = (
+        ('2020-01-01', '2020-01-01'),
+        ('2020-03-01', '2020-03-01'),
+        ('2020-09-01', '2020-09-01'),
+        ('2020-11-01', '2020-11-01'),
+        ('2021-01-01', '2021-01-01'),
+        ('2021-03-01', '2021-03-01'),
+        ('2021-05-01', '2021-05-01')
+    )
+    regulation__date = django_filters.ChoiceFilter(choices=DATE_CHOICES)
+
+    content__value = django_filters.CharFilter(lookup_expr='icontains')
+    content__unit = django_filters.CharFilter(lookup_expr='icontains')
+
+    class Meta:
+        model = RowA
+        fields = ['substance__name', 'name__name', 'form__name', 'refund__name', 'ean__value', 'ean__value__gt',
+                  'ean__value__lt',
+                  'surcharge__value__gt', 'surcharge__value__lt', 'dose__unit', 'content__value', 'content__unit',
+                  'regulation__date']
+
+
+class EanListView(SingleTableMixin, FilterView):
+    table_class = EanTable
+    model = RowA
+    paginate_by = 50
+    template_name = "searchEngine/ean.html"
+
+    filterset_class = EanFilter
+
+    def get_queryset(self):
+        qs = RowA.objects.all().filter(ean__value=self.kwargs['ean_id'])
+        return qs
